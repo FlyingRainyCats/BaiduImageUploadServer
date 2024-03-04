@@ -295,7 +295,7 @@
     }
 
     const imagePreviewLink = e.target.closest('.uploaded-images--preview');
-    if (imagePreviewLink && !imagePreviewLink.href) {
+    if (imagePreviewLink && !imagePreviewLink.getAttribute('href')) {
       e.preventDefault();
     }
   });
@@ -304,35 +304,26 @@
     uploadAllImages(filterImages(e.clipboardData.files)).catch(console.error);
   });
 
-  let dndCounter = 0;
-  const updateDndNotes = () => {
-    document.body.classList.toggle('hide-dnd-notes', dndCounter === 0);
-  };
-  document.body.addEventListener('dragenter', (_e) => {
-    dndCounter++;
-    updateDndNotes();
-  });
-  document.body.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
-  document.body.addEventListener('dragleave', (_e) => {
-    dndCounter--;
-    updateDndNotes();
-  });
-
   /**
    * @param {DataTransfer} dataTransfer
    */
   async function handleDataTransfer(dataTransfer) {
     if (supportsDirectoryUpload) {
-      /** @type {FsObject[]} */
-      const fsObjects = await Promise.all(
-        [...dataTransfer.items].map(async (item) => {
+      /** @type {(Promise<FsObject|null>)[]} */
+      const fsObjPromises = [...dataTransfer.items].map((item) => {
+        if (isImageTransferItem(item)) {
           // `getAsFileSystemHandle` is preferred API.
-          const handle = supportsFileSystemAccessAPI ? await item.getAsFileSystemHandle() : item.webkitGetAsEntry();
-          return FsObject.create(handle, 'root');
-        }),
-      );
+          const handlePromise = supportsFileSystemAccessAPI
+            ? item.getAsFileSystemHandle()
+            : Promise.resolve(item.webkitGetAsEntry());
+          return handlePromise.then((handle) => FsObject.create(handle, 'root'));
+        }
+
+        return null;
+      });
+
+      /** @type {FsObject[]} */
+      const fsObjects = (await Promise.all(fsObjPromises)).filter(Boolean);
 
       const uploadQueue = [];
       for (const fsObj of fsObjects) {
@@ -347,11 +338,37 @@
     }
   }
 
-  document.body.addEventListener('drop', (e) => {
-    e.preventDefault();
+  /**
+   * @param {DataTransferItem} item
+   * @return {boolean}
+   */
+  const isImageTransferItem = (item) => item.kind === 'file';
 
+  let dndCounter = 0;
+  const updateDndNotes = (e) => {
+    const isDndFile = Array.prototype.some.call(e.dataTransfer.items, isImageTransferItem);
+    e.dataTransfer.effectAllowed = isDndFile ? 'copy' : 'none';
+
+    if (isDndFile) {
+      e.preventDefault();
+      document.body.classList.toggle('hide-dnd-notes', dndCounter === 0);
+    }
+  };
+  document.body.addEventListener('dragenter', (e) => {
+    dndCounter++;
+    updateDndNotes(e);
+  });
+  document.body.addEventListener('dragover', (e) => {
+    updateDndNotes(e);
+  });
+  document.body.addEventListener('dragleave', (e) => {
+    dndCounter--;
+    updateDndNotes(e);
+  });
+
+  document.body.addEventListener('drop', (e) => {
     dndCounter = 0;
-    updateDndNotes();
+    updateDndNotes(e);
 
     handleDataTransfer(e.dataTransfer).catch(console.error);
   });

@@ -93,6 +93,8 @@ body {
   top: 0;
   padding: 2em;
   display: flex;
+  pointer-events: none;
+  user-select: none;
 }
 
 .dnd-upload-note--border {

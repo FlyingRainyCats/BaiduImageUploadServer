@@ -4,6 +4,8 @@
  */
 
 window.FsObject = (() => {
+  const { FileSystemHandle } = window;
+
   /**
    * @typedef {FileSystemDirectoryEntry | FileSystemFileEntry | FileSystemDirectoryHandle | FileSystemFileHandle} RawHandle
    */
@@ -52,13 +54,14 @@ window.FsObject = (() => {
      * @return {FsObject}
      */
     static create(handle, name = '$unknown') {
-      if (handle instanceof FileSystemHandle) {
+      if (FileSystemHandle && handle instanceof FileSystemHandle) {
         return new FsObject$Handle(handle, name);
-      } else if ('fullPath' in handle && typeof handle.fullPath === 'string') {
+      } else if (typeof handle?.fullPath === 'string') {
         return new FsObject$Entry(handle, name);
-      } else {
-        throw new Error('File System Access API is not supported');
       }
+
+      // not supported
+      return null;
     }
   }
 
