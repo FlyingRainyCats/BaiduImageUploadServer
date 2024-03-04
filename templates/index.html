@@ -17,6 +17,7 @@
 
   <form id="image-upload" method="post" enctype="multipart/form-data" action="/upload">
     <div>
+      <input type="hidden" id="csrf-token" name="_csrf" value="{{.csrf}}">
       <label for="image-input">
         <span class="pointer-only">选择或拖拽文件进行上传</span>
         <span class="touch-only">选择文件进行上传</span>

@@ -24,6 +24,10 @@ func main() {
 
 	// enable internal logger middleware
 	e.Use(middleware.Logger())
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "header:_csrf,form:_csrf",
+		CookiePath:  "/",
+	}))
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			c.Set("config", &config)
@@ -44,9 +48,11 @@ func main() {
 	})
 	e.GET("/", func(c echo.Context) error {
 		bdussCookie := c.Get("bduss").(string)
+		csrfToken := c.Get("csrf").(string)
 
 		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 			"BDUSS": bdussCookie,
+			"csrf":  csrfToken,
 		})
 	})
 	e.POST("/upload", logic.BaiduUploadHandler)

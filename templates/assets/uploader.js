@@ -181,6 +181,7 @@
    */
   const $imageInput = $('image-input');
   const $bduss = $('bduss');
+  const $csrf = $('csrf-token');
 
   async function fileToImageUrl(file) {
     return new Promise((resolve, reject) => {
@@ -202,6 +203,7 @@
     let formData = new FormData();
     formData.append('image', image);
     formData.append('bduss', $bduss.value);
+    formData.append('_csrf', $csrf.value);
 
     const resp = await fetch('/upload', {
       method: 'POST',
