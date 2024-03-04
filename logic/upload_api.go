@@ -2,33 +2,24 @@ package logic
 
 import (
 	"BaiduImageUploadServer/service"
-	"BaiduImageUploadServer/utils"
 	"bytes"
 	"github.com/labstack/echo/v4"
-	gonanoid "github.com/matoous/go-nanoid"
 	"golang.org/x/image/webp"
-	"image/png"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"os"
-	"path"
-
 	_ "golang.org/x/image/webp"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
+	"image/png"
 	_ "image/png"
+	"io"
+	"mime/multipart"
+	"net/http"
 )
 
-func ProcessImageToLocalStorage(saveDir string, file *multipart.FileHeader) (string, error) {
-	if err := os.MkdirAll(saveDir, 0755); err != nil {
-		return "", err
-	}
-
+func PreProcessImage(file *multipart.FileHeader) ([]byte, error) {
 	src, err := file.Open()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer func(src multipart.File) {
 		_ = src.Close()
@@ -36,56 +27,30 @@ func ProcessImageToLocalStorage(saveDir string, file *multipart.FileHeader) (str
 	imageBytes, err := io.ReadAll(src)
 	_, format, err := image.DecodeConfig(bytes.NewReader(imageBytes))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
-	dstFilePath := path.Join(saveDir, gonanoid.MustID(20))
-	finalPath := dstFilePath + "." + format
 
 	switch format {
 	case "jpeg", "png", "gif":
-		dst, err := os.Create(finalPath)
-		if err != nil {
-			return "", err
-		}
-		defer func(dst *os.File) {
-			_ = dst.Close()
-		}(dst)
-		if _, err = io.Copy(dst, bytes.NewReader(imageBytes)); err != nil {
-			return "", err
-		}
+		break
 
 	case "webp":
-		finalPath = dstFilePath + ".png"
 		webpImage, err := webp.Decode(bytes.NewReader(imageBytes))
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		dst, err := os.Create(finalPath)
-		if err != nil {
-			return "", err
-		}
-		defer func(dst *os.File) {
-			_ = dst.Close()
-		}(dst)
-		err = png.Encode(dst, webpImage)
-		if err != nil {
-			return "", err
-		}
+		var pngBuffer bytes.Buffer
+		err = png.Encode(&pngBuffer, webpImage)
+		imageBytes = pngBuffer.Bytes()
 
 	default:
-		return "", echo.NewHTTPError(http.StatusBadRequest, "File format not supported, only jpg/png/gif/webp supported")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "File format not supported, only jpg/png/gif/webp supported")
 	}
 
-	return finalPath, nil
+	return imageBytes, nil
 }
 
 func BaiduUploadHandler(c echo.Context) error {
-	config, ok := c.Get("config").(*utils.Config)
-	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "can not get utils")
-	}
-
 	if err := c.Request().ParseMultipartForm(32 << 20); err != nil {
 		return err
 	}
@@ -112,19 +77,12 @@ func BaiduUploadHandler(c echo.Context) error {
 	var images []string
 
 	for _, file := range files {
-		uploadPath, err := ProcessImageToLocalStorage(config.App.ImageDirectory, file)
+		imageBytes, err := PreProcessImage(file)
 		if err != nil {
 			return err
 		}
 
-		imageFile, err := os.Open(uploadPath)
-		if err != nil {
-			return err
-		}
-		defer func(imageFile *os.File) {
-			_ = imageFile.Close()
-		}(imageFile)
-		imageUrl, err := service.UploadToBaidu(bduss, imageFile)
+		imageUrl, err := service.UploadToBaidu(bduss, bytes.NewReader(imageBytes))
 		if err != nil {
 			return err
 		}

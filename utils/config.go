@@ -6,5 +6,4 @@ type Config struct {
 }
 
 type AppConfig struct {
-	ImageDirectory string `toml:"image_dir"` // matches with your key in toml.
 }

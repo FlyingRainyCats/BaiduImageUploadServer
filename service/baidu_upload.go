@@ -9,7 +9,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
-	"os"
 )
 
 const BaiduImageUploadEndpointUrl = "https://sp0.baidu.com/6_R1fD_bAAd3otqbppnN2DJv/Pic/upload?pid=super&app=skin&l&logid=3915152959"
@@ -36,7 +35,7 @@ type BaiduUploadResp struct {
 	Data   *BaiduUploadRespData `json:"data"`
 }
 
-func UploadToBaidu(bduss string, image *os.File) (string, error) {
+func UploadToBaidu(bduss string, image io.Reader) (string, error) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 	defer func(writer *multipart.Writer) {
