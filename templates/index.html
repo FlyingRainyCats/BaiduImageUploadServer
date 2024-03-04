@@ -8,7 +8,7 @@
   <title>简易百度图床工具</title>
   <link rel="stylesheet" href="assets/home.css">
 </head>
-<body>
+<body class="hide-dnd-notes">
 
 <main>
   <form id="image-upload" method="post" enctype="multipart/form-data" action="/upload">
@@ -49,6 +49,14 @@
       </ul>
     </fieldset>
   </form>
+
+  <div id="dnd-upload-note">
+    <div class="dnd-upload-note--border">
+      <div class="dnd-upload-note--content">
+        放下文件即可上传图片
+      </div>
+    </div>
+  </div>
 </main>
 
 <script defer async src="assets/uploader.js"></script>

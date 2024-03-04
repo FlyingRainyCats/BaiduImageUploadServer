@@ -248,4 +248,30 @@
     document.body.addEventListener('paste', (e) => {
         uploadAllImages(filterImages(e.clipboardData.files)).catch(console.error);
     });
+
+    let dndCounter = 0;
+    const updateDndNotes = () => {
+        document.body.classList.toggle("hide-dnd-notes", dndCounter === 0);
+    }
+    document.body.addEventListener('dragenter', (e) => {
+        dndCounter++;
+        updateDndNotes();
+    });
+    document.body.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+    document.body.addEventListener('dragleave', (e) => {
+        dndCounter--;
+        updateDndNotes();
+    });
+
+    document.body.addEventListener('drop', (e) => {
+        e.preventDefault();
+
+        dndCounter = 0;
+        updateDndNotes();
+
+        let files = e.dataTransfer.files;
+        uploadAllImages(filterImages(files)).catch(console.error);
+    });
 })();

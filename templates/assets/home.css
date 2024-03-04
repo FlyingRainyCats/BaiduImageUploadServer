@@ -43,10 +43,47 @@
 }
 
 main {
-    width: 600px;
-    margin: 2em auto 0;
+    max-width: 600px;
+    margin: 0 auto 0;
+    padding: 2em;
 }
 
 fieldset {
     margin-top: 1em;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+.hide-dnd-notes #dnd-upload-note {
+    display: none;
+}
+
+#dnd-upload-note {
+    box-sizing: border-box;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 2em;
+    display: flex;
+}
+
+.dnd-upload-note--border {
+    border-radius: 2em;
+    border: 1em dashed #ccc;
+    flex: 1;
+}
+
+.dnd-upload-note--content {
+    text-align: center;
+    flex: 1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ddd5;
 }
