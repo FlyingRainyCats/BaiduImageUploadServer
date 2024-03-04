@@ -42,6 +42,10 @@
     border-color: #ccc;
 }
 
+.uploaded-images--error .uploaded-images--image {
+    border-color: #ffa1a1;
+}
+
 main {
     max-width: 600px;
     margin: 0 auto 0;

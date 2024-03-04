@@ -1,4 +1,9 @@
 ;(() => {
+    // https://web.dev/patterns/files/drag-and-drop-directories
+    const supportsFileSystemAccessAPI = 'getAsFileSystemHandle' in DataTransferItem.prototype;
+    const supportsWebkitGetAsEntry = 'webkitGetAsEntry' in DataTransferItem.prototype;
+    const supportsDirectoryUpload = supportsWebkitGetAsEntry || supportsFileSystemAccessAPI;
+
     // nano id: https://github.com/ai/nanoid/blob/5.0.6/non-secure/index.js
     const NANOID_CHAR_TABLE = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
     const nanoid = (size = 21, id = '') => {
@@ -130,7 +135,10 @@
     }
 
     function UploadedUrlItem({id, url, uploadUrl, error, uploading}) {
-        return h('li', {id, className: 'uploaded-images--item' + (uploading ? ' uploaded-images--uploading' : '')},
+        return h('li', {
+                id,
+                className: 'uploaded-images--item' + (uploading ? ' uploaded-images--uploading' : '') + (error ? ' uploaded-images--error' : '')
+            },
             h('a', {
                     className: 'uploaded-images--preview',
                     href: uploadUrl ?? '',
@@ -193,6 +201,30 @@
     }
 
     /**
+     * Upload a single image and return a function that can be used to start the upload.
+     * @param {File} image
+     * @return {Promise<() => Promise<void>>}
+     */
+    async function uploadSingleImage(image) {
+        const id = `${nanoid()}-${Date.now()}`;
+        const imageUrl = await fileToImageUrl(image);
+        $imageContainer.appendChild(h(UploadedUrlItem, {id, url: imageUrl, uploading: true}));
+        return async () => {
+            try {
+                // DEBUG: set this value to true to disable upload
+                if (window._no_upload) {
+                    throw new Error('upload disabled');
+                }
+
+                const url = await uploadImage(image);
+                $(id).replaceWith(h(UploadedUrlItem, {id, url: imageUrl, uploadUrl: url}));
+            } catch (error) {
+                $(id).replaceWith(h(UploadedUrlItem, {id, url: imageUrl, error}));
+            }
+        };
+    }
+
+    /**
      * @param {File[]} images
      * @returns {Promise<void>}
      */
@@ -203,20 +235,27 @@
 
         const uploadQueue = [];
         for (const image of images) {
-            const id = `${nanoid()}-${Date.now()}`;
-            const imageUrl = await fileToImageUrl(image);
-            $imageContainer.appendChild(h(UploadedUrlItem, {id, url: imageUrl, uploading: true}));
-            uploadQueue.push(async () => {
-                try {
-                    const url = await uploadImage(image);
-                    $(id).replaceWith(h(UploadedUrlItem, {id, url: imageUrl, uploadUrl: url}));
-                } catch (error) {
-                    $(id).replaceWith(h(UploadedUrlItem, {id, url: imageUrl, error}));
-                }
-            });
+            uploadQueue.push(await uploadSingleImage(image));
         }
         for (const promise of uploadQueue) {
             await promise();
+        }
+    }
+
+    /**
+     * @param {(() => Promise<void>)[]} queue
+     * @param {FsObject} fsObj
+     */
+    async function handleFsObjectUpload(queue, fsObj) {
+        if (fsObj.isFile) {
+            queue.push(await uploadSingleImage(await fsObj.toFile()));
+            return;
+        }
+
+        if (fsObj.isDirectory) {
+            for (const nextFsObj of await fsObj.listFiles()) {
+                await handleFsObjectUpload(queue, nextFsObj);
+            }
         }
     }
 
@@ -265,13 +304,41 @@
         updateDndNotes();
     });
 
+    /**
+     * @param {DataTransfer} dataTransfer
+     */
+    async function handleDataTransfer(dataTransfer) {
+        if (supportsDirectoryUpload) {
+            /** @type {FsObject[]} */
+            const fsObjects = await Promise.all([...dataTransfer.items]
+                .map(async (item) => {
+                    // `getAsFileSystemHandle` is preferred API.
+                    const handle = supportsFileSystemAccessAPI
+                        ? await item.getAsFileSystemHandle()
+                        : item.webkitGetAsEntry();
+                    return FsObject.create(handle, 'root');
+                }));
+
+            const uploadQueue = [];
+            for (const fsObj of fsObjects) {
+                await handleFsObjectUpload(uploadQueue, fsObj);
+            }
+            for (const upload of uploadQueue) {
+                await upload();
+            }
+        } else {
+            let files = dataTransfer.files;
+            await uploadAllImages(filterImages(files));
+        }
+    }
+
     document.body.addEventListener('drop', (e) => {
         e.preventDefault();
 
         dndCounter = 0;
         updateDndNotes();
 
-        let files = e.dataTransfer.files;
-        uploadAllImages(filterImages(files)).catch(console.error);
+        handleDataTransfer(e.dataTransfer).catch(console.error);
     });
 })();
+ 

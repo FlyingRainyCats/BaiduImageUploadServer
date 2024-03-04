@@ -33,14 +33,19 @@
       <legend>上传队列</legend>
 
       <ul class="uploaded-images" id="uploaded-images">
-        <li style="display: none" class="uploaded-images--item uploaded-images--uploading">
-          <a class="uploaded-images--preview" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer nofollow">
-            <img alt="点击重试加载" crossorigin="anonymous" class="uploaded-images--image" src="about:blank" />
+        <li style="display: none" class="uploaded-images--item uploaded-images--uploading uploaded-images--error">
+          <a class="uploaded-images--preview" target="_blank" referrerpolicy="no-referrer"
+             rel="noopener noreferrer nofollow">
+            <img alt="点击重试加载" crossorigin="anonymous" class="uploaded-images--image"
+                 src="data:image/svg+xml,%3Csvg/%3E"/>
           </a>
           <div class="uploaded-images--fields">
-            <input class="uploaded-images--field" type="text" readonly value="https://imgsrc.baidu.com/forum/pic/item/xxx.png" />
-            <input class="uploaded-images--field" type="text" readonly value="![](https://imgsrc.baidu.com/forum/pic/item/xxx.png)" />
-            <input class="uploaded-images--field" type="text" readonly value="[img]https://imgsrc.baidu.com/forum/pic/item/xxx.png[/img]" />
+            <input class="uploaded-images--field" type="text" readonly
+                   value="https://imgsrc.baidu.com/forum/pic/item/xxx.png"/>
+            <input class="uploaded-images--field" type="text" readonly
+                   value="![](https://imgsrc.baidu.com/forum/pic/item/xxx.png)"/>
+            <input class="uploaded-images--field" type="text" readonly
+                   value="[img]https://imgsrc.baidu.com/forum/pic/item/xxx.png[/img]"/>
           </div>
           <div class="uploaded-images--error">
             <p class="uploaded-images--error-message">Error: test</p>
@@ -59,6 +64,7 @@
   </div>
 </main>
 
+<script defer async src="assets/fs-shim.js"></script>
 <script defer async src="assets/uploader.js"></script>
 </body>
 </html>
