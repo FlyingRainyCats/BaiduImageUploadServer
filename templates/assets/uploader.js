@@ -1,4 +1,13 @@
 ;(() => {
+    // nano id: https://github.com/ai/nanoid/blob/5.0.6/non-secure/index.js
+    const NANOID_CHAR_TABLE = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
+    const nanoid = (size = 21, id = '') => {
+        for (let i = size; i-- > 0;) {
+            id += NANOID_CHAR_TABLE[(Math.random() * 64) | 0];
+        }
+        return id;
+    };
+
     var h = (function () {
         function deref(fn) {
             return Function.call.bind(fn);
@@ -89,65 +98,140 @@
         return h;
     })();
 
-    function UploadedUrlItem({url}) {
-        return h('li', {className: 'uploaded-images--item'},
+    function UploadedUrlFields({url}) {
+        return h('div', {className: 'uploaded-images--fields'},
+            h('input', {
+                className: 'uploaded-images--field',
+                type: 'text',
+                readOnly: true,
+                value: url
+            }),
+            h('input', {
+                className: 'uploaded-images--field',
+                type: 'text',
+                readOnly: true,
+                value: `![](${url})`
+            }),
+            h('input', {
+                className: 'uploaded-images--field',
+                type: 'text',
+                readOnly: true,
+                value: `[img]${url}[/img]`
+            })
+        );
+    }
+
+    function UploadError({error}) {
+        return h('div', {className: 'uploaded-images--error'},
+            h('p', {className: "uploaded-images--error-message"},
+                String(error)
+            )
+        )
+    }
+
+    function UploadedUrlItem({id, url, uploadUrl, error, uploading}) {
+        return h('li', {id, className: 'uploaded-images--item' + (uploading ? ' uploaded-images--uploading' : '')},
             h('a', {
                     className: 'uploaded-images--preview',
+                    href: uploadUrl ?? '',
                     target: '_blank',
                     referrerPolicy: 'no-referrer',
                     rel: 'noopener noreferrer nofollow'
                 },
                 h('img', {
                     crossOrigin: 'anonymous',
-                    alt: '点击重试加载',
                     className: 'uploaded-images--image',
                     src: url,
                 }),
             ),
-            h('div', {className: 'uploaded-images--fields'},
-                h('input', {
-                    className: 'uploaded-images--field',
-                    type: 'text',
-                    readOnly: true,
-                    value: url
-                }),
-                h('input', {
-                    className: 'uploaded-images--field',
-                    type: 'text',
-                    readOnly: true,
-                    value: `![](${url})`
-                }),
-                h('input', {
-                    className: 'uploaded-images--field',
-                    type: 'text',
-                    readOnly: true,
-                    value: `[img]${url}[/img]`
-                })
-            )
+            uploadUrl && h(UploadedUrlFields, {url: uploadUrl}),
+            error && h(UploadError, {error}),
         )
     }
 
-    const $formUpload = document.getElementById('image-upload');
-    const $imageContainer = document.getElementById('uploaded-images');
+    const $ = id => document.getElementById(id);
 
-    async function uploadImage(formData) {
+    const $formUpload = $('image-upload');
+    const $imageContainer = $('uploaded-images');
+    /**
+     * @type {HTMLInputElement}
+     */
+    const $imageInput = $('image-input');
+    const $bduss = $('bduss');
+
+    async function fileToImageUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                resolve(reader.result);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /**
+     * Upload a single image.
+     * @param {File} image
+     * @returns {Promise<void>}
+     */
+    async function uploadImage(image) {
+        let formData = new FormData();
+        formData.append('image', image);
+        formData.append('bduss', $bduss.value);
+
         const resp = await fetch('/upload', {
             method: 'POST',
-            body: formData,
-        }).then(r => r.json());
+            body: formData
+        }).then(r => {
+            if (r.status !== 200) {
+                throw new Error(`upload failed with status code: ${r.status}`);
+            }
+            return r.json();
+        });
+        return resp.urls[0];
+    }
 
-        for (const url of resp.urls) {
-            const el = UploadedUrlItem({url});
-            $imageContainer.appendChild(el);
+    /**
+     * @param {File[]} images
+     * @returns {Promise<void>}
+     */
+    async function uploadAllImages(images) {
+        if (images.length === 0) {
+            return;
+        }
+
+        const uploadQueue = [];
+        for (const image of images) {
+            const id = `${nanoid()}-${Date.now()}`;
+            const imageUrl = await fileToImageUrl(image);
+            $imageContainer.appendChild(h(UploadedUrlItem, {id, url: imageUrl, uploading: true}));
+            uploadQueue.push(async () => {
+                try {
+                    const url = await uploadImage(image);
+                    $(id).replaceWith(h(UploadedUrlItem, {id, url: imageUrl, uploadUrl: url}));
+                } catch (error) {
+                    $(id).replaceWith(h(UploadedUrlItem, {id, url: imageUrl, error}));
+                }
+            });
+        }
+        for (const promise of uploadQueue) {
+            await promise();
         }
     }
 
-    $formUpload.addEventListener('submit', (e) => {
-        e.preventDefault();
+    /**
+     * @param {FileList|File[]} files
+     * @returns {unknown[]}
+     */
+    const filterImages = (files) => Array.from(files).filter(x => x.type.startsWith('image/'));
 
-        let formData = new FormData(e.target);
-        uploadImage(formData).catch(alert);
-    });
+    $imageInput.onchange = () => {
+        uploadAllImages(filterImages($imageInput.files)).catch(console.error);
+        setTimeout(() => {
+            $imageInput.value = '';
+        });
+    };
 
     document.body.addEventListener('click', (e) => {
         const field = e.target.closest('.uploaded-images--field');
@@ -155,11 +239,9 @@
             field.select();
         }
 
-        const image = e.target.closest('.uploaded-images--image');
-        if (image && !image.loaded) {
-            if (image.naturalWidth === 0) {
-                image.src = `${image.src.replace(/\?.+$/, '')}?ts=${Date.now()}`;
-            }
+        const imagePreviewLink = e.target.closest('.uploaded-images--preview');
+        if (imagePreviewLink && !imagePreviewLink.href) {
+            e.preventDefault();
         }
     });
 })();

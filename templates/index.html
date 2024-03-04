@@ -9,34 +9,48 @@
   <link rel="stylesheet" href="assets/home.css">
 </head>
 <body>
-<form id="image-upload" method="post" enctype="multipart/form-data" action="/upload">
-  <div>
-    <input type="file" id="image" name="image" accept="image/*" required multiple>
-    <button type="submit">上传</button>
-  </div>
-  <fieldset>
-    <legend>认证设定</legend>
-    <label for="bduss">BDUSS Cookie 内容</label>
-    <br>
-    <input name="bduss" id="bduss" type="password" autocomplete="off" value="{{.BDUSS}}" />
-  </fieldset>
-  <fieldset>
-    <legend>已上传图片</legend>
 
-    <ul class="uploaded-images" id="uploaded-images">
-      <li style="display: none" class="uploaded-images--item">
-        <a class="uploaded-images--preview" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer nofollow">
-          <img alt="点击重试加载" crossorigin="anonymous" class="uploaded-images--image" src="about:blank" />
-        </a>
-        <div class="uploaded-images--fields">
-          <input class="uploaded-images--field" type="text" readonly value="https://imgsrc.baidu.com/forum/pic/item/xxx.png" />
-          <input class="uploaded-images--field" type="text" readonly value="![](https://imgsrc.baidu.com/forum/pic/item/xxx.png)" />
-          <input class="uploaded-images--field" type="text" readonly value="[img]https://imgsrc.baidu.com/forum/pic/item/xxx.png[/img]" />
-        </div>
-      </li>
-    </ul>
-  </fieldset>
-</form>
+<main>
+  <form id="image-upload" method="post" enctype="multipart/form-data" action="/upload">
+    <div>
+      <label for="image-input">选择文件进行上传</label>
+      <div><input type="file" id="image-input" name="image" accept="image/*" required multiple></div>
+
+      <noscript>
+        <button type="submit">上传</button>
+      </noscript>
+    </div>
+
+    <fieldset>
+      <legend>认证设定</legend>
+      <label for="bduss">BDUSS Cookie 内容</label>
+      <div>
+        <textarea name="bduss" id="bduss" placeholder="留空则使用服务器预配置的 BDUSS">{{.BDUSS}}</textarea>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>上传队列</legend>
+
+      <ul class="uploaded-images" id="uploaded-images">
+        <li style="display: none" class="uploaded-images--item uploaded-images--uploading">
+          <a class="uploaded-images--preview" target="_blank" referrerpolicy="no-referrer" rel="noopener noreferrer nofollow">
+            <img alt="点击重试加载" crossorigin="anonymous" class="uploaded-images--image" src="about:blank" />
+          </a>
+          <div class="uploaded-images--fields">
+            <input class="uploaded-images--field" type="text" readonly value="https://imgsrc.baidu.com/forum/pic/item/xxx.png" />
+            <input class="uploaded-images--field" type="text" readonly value="![](https://imgsrc.baidu.com/forum/pic/item/xxx.png)" />
+            <input class="uploaded-images--field" type="text" readonly value="[img]https://imgsrc.baidu.com/forum/pic/item/xxx.png[/img]" />
+          </div>
+          <div class="uploaded-images--error">
+            <p class="uploaded-images--error-message">Error: test</p>
+          </div>
+        </li>
+      </ul>
+    </fieldset>
+  </form>
+</main>
+
 <script defer async src="assets/uploader.js"></script>
 </body>
 </html>
