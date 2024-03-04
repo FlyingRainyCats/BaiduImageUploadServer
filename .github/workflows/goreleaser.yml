@@ -1,12 +1,9 @@
 name: goreleaser
 
 on:
+  pull_request:
   push:
-    tags:
-      - '*'
-
-permissions:
-  contents: write
+  workflow_dispatch:
 
 jobs:
   goreleaser:
@@ -25,9 +22,7 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          args: release --skip=publish
       - name: Upload assets
         uses: actions/upload-artifact@v3
         with:
