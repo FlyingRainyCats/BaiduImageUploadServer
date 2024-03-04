@@ -1,6 +1,7 @@
 /config.toml
 /local/
 node_modules/
+dist/
 
 ### Go template
 # If you prefer the allow list template instead of the deny list, see community template:
@@ -104,3 +105,5 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+
+dist/

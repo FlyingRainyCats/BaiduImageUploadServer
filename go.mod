@@ -5,7 +5,6 @@ go 1.22
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/labstack/echo/v4 v4.11.4
-	github.com/matoous/go-nanoid v1.5.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	golang.org/x/image v0.15.0
 )
