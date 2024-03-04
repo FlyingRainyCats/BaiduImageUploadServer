@@ -6,4 +6,5 @@ type Config struct {
 }
 
 type AppConfig struct {
+	DefaultBduss string `toml:"default_bduss"`
 }

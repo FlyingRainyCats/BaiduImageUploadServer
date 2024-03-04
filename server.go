@@ -20,9 +20,10 @@ func main() {
 		panic(err)
 	}
 
+	e.StaticFS("/assets", echo.MustSubFS(templates.AssetsFS, "assets"))
+
 	// enable internal logger middleware
 	e.Use(middleware.Logger())
-
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			c.Set("config", &config)
@@ -30,13 +31,20 @@ func main() {
 		}
 	})
 
-	e.StaticFS("/assets", echo.MustSubFS(templates.AssetsFS, "assets"))
-	e.GET("/", func(c echo.Context) error {
-		bduss, err := c.Cookie("bduss")
-		bdussCookie := ""
-		if err == nil {
-			bdussCookie = bduss.Value
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			bduss, err := c.Cookie("bduss")
+			bdussCookie := ""
+			if err == nil {
+				bdussCookie = bduss.Value
+			}
+			c.Set("bduss", bdussCookie)
+			return next(c)
 		}
+	})
+	e.GET("/", func(c echo.Context) error {
+		bdussCookie := c.Get("bduss").(string)
+
 		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 			"BDUSS": bdussCookie,
 		})

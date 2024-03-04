@@ -2,6 +2,7 @@ package logic
 
 import (
 	"BaiduImageUploadServer/service"
+	"BaiduImageUploadServer/utils"
 	"bytes"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/image/webp"
@@ -51,6 +52,7 @@ func PreProcessImage(file *multipart.FileHeader) ([]byte, error) {
 }
 
 func BaiduUploadHandler(c echo.Context) error {
+	config := c.Get("config").(*utils.Config)
 	if err := c.Request().ParseMultipartForm(32 << 20); err != nil {
 		return err
 	}
@@ -60,19 +62,24 @@ func BaiduUploadHandler(c echo.Context) error {
 
 	// Get all the files from "image" key:
 	files := multipartForm.File["image"]
-	bdussFields := multipartForm.Value["bduss"]
-	if len(bdussFields) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "bduss missing")
+	bduss := utils.FirstOrDefault(multipartForm.Value["bduss"], "")
+	bdussCookie := c.Get("bduss")
+	// Update cookie if needed
+	if bdussCookie != bduss {
+		c.SetCookie(&http.Cookie{
+			Name:     "bduss",
+			Value:    bduss,
+			HttpOnly: true,
+		})
 	}
-	bduss := bdussFields[0]
 	if len(bduss) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "bduss empty")
+		bduss = config.App.DefaultBduss
+		if len(bduss) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "no bduss supplied")
+		}
 	}
-	c.SetCookie(&http.Cookie{
-		Name:     "bduss",
-		Value:    bduss,
-		HttpOnly: true,
-	})
+
+	// Fetch bduss from default repository if needed.
 
 	var images []string
 
