@@ -69,7 +69,12 @@ func UploadToBaidu(bduss string, image *os.File) (string, error) {
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("Cookie", fmt.Sprintf("BDUSS=%s", bduss))
 
-	client := &http.Client{}
+	client := &http.Client{
+		// Don't follow redirect - is usually a rejected request, no need to follow :/
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", nil
