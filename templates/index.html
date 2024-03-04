@@ -40,12 +40,21 @@
                  src="data:image/svg+xml,%3Csvg/%3E" />
           </a>
           <div class="uploaded-images--fields">
-            <input class="uploaded-images--field" type="text" readonly
-                   value="https://imgsrc.baidu.com/forum/pic/item/xxx.png" />
-            <input class="uploaded-images--field" type="text" readonly
-                   value="![](https://imgsrc.baidu.com/forum/pic/item/xxx.png)" />
-            <input class="uploaded-images--field" type="text" readonly
-                   value="[img]https://imgsrc.baidu.com/forum/pic/item/xxx.png[/img]" />
+            <label class="uploaded-images--label">
+              <span class="uploaded-images--label-text">URL</span>
+              <input class="uploaded-images--field" type="text" readonly
+                     value="https://imgsrc.baidu.com/forum/pic/item/xxx.png" />
+            </label>
+            <label class="uploaded-images--label">
+              <span class="uploaded-images--label-text">Markdown</span>
+              <input class="uploaded-images--field" type="text" readonly
+                     value="![](https://imgsrc.baidu.com/forum/pic/item/xxx.png)" />
+            </label>
+            <label class="uploaded-images--label">
+              <span class="uploaded-images--label-text">BBCode</span>
+              <input class="uploaded-images--field" type="text" readonly
+                     value="[img]https://imgsrc.baidu.com/forum/pic/item/xxx.png[/img]" />
+            </label>
           </div>
           <div class="uploaded-images--error">
             <p class="uploaded-images--error-message">Error: test</p>

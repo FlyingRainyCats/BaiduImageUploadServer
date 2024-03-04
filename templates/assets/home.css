@@ -1,93 +1,110 @@
 .uploaded-images {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-wrap: wrap;
-    gap: 0.5em;
-    flex-direction: column-reverse;
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  flex-direction: column-reverse;
 }
 
 .uploaded-images--item {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .uploaded-images--fields {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    flex-direction: column;
-    margin-left: 1em;
-    flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .uploaded-images--image {
-    max-width: 140px;
-    max-height: 60px;
-    border: 2px solid #66b766;
-    padding: 1px;
+  max-width: 140px;
+  max-height: 60px;
+  border: 2px solid #66b766;
+  padding: 1px;
 }
 
 .uploaded-images--preview {
-    display: inline-block;
-    width: 150px;
-    text-align: center;
+  display: inline-block;
+  width: 150px;
+  text-align: center;
+  margin-right: 0.5em;
 }
 
 .uploaded-images--uploading .uploaded-images--image {
-    opacity: 0.5;
-    cursor: wait;
-    border-color: #ccc;
+  opacity: 0.5;
+  cursor: wait;
+  border-color: #ccc;
 }
 
 .uploaded-images--error .uploaded-images--image {
-    border-color: #ffa1a1;
+  border-color: #ffa1a1;
 }
 
 main {
-    max-width: 600px;
-    margin: 0 auto 0;
-    padding: 2em;
+  max-width: 600px;
+  margin: 0 auto 0;
+  padding: 2em;
 }
 
 fieldset {
-    margin-top: 1em;
+  margin-top: 1em;
 }
 
-html, body {
-    margin: 0;
-    height: 100%;
+html,
+body {
+  margin: 0;
+  height: 100%;
 }
 
 .hide-dnd-notes #dnd-upload-note {
-    display: none;
+  display: none;
 }
 
 #dnd-upload-note {
-    box-sizing: border-box;
-    width: 100vw;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    padding: 2em;
-    display: flex;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 2em;
+  display: flex;
 }
 
 .dnd-upload-note--border {
-    border-radius: 2em;
-    border: 1em dashed #ccc;
-    flex: 1;
+  border-radius: 2em;
+  border: 1em dashed #ccc;
+  flex: 1;
 }
 
 .dnd-upload-note--content {
-    text-align: center;
-    flex: 1;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #ddd5;
+  text-align: center;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ddd5;
+}
+
+.uploaded-images--label {
+  display: flex;
+  align-items: baseline;
+}
+
+.uploaded-images--label-text {
+  width: 6em;
+  padding-right: 0.5em;
+  text-align: right;
+  font-size: smaller;
+}
+
+.uploaded-images--field {
+  flex: 1;
 }

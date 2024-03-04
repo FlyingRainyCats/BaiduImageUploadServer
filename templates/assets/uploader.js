@@ -103,28 +103,35 @@
     return h;
   })();
 
+  function CopyFieldInput({ label, value }) {
+    return h(
+      'label',
+      {
+        className: 'uploaded-images--label',
+      },
+      h(
+        'span',
+        {
+          className: 'uploaded-images--label-text',
+        },
+        label,
+      ),
+      h('input', {
+        className: 'uploaded-images--field',
+        type: 'text',
+        readOnly: true,
+        value,
+      }),
+    );
+  }
+
   function UploadedUrlFields({ url }) {
     return h(
       'div',
       { className: 'uploaded-images--fields' },
-      h('input', {
-        className: 'uploaded-images--field',
-        type: 'text',
-        readOnly: true,
-        value: url,
-      }),
-      h('input', {
-        className: 'uploaded-images--field',
-        type: 'text',
-        readOnly: true,
-        value: `![](${url})`,
-      }),
-      h('input', {
-        className: 'uploaded-images--field',
-        type: 'text',
-        readOnly: true,
-        value: `[img]${url}[/img]`,
-      }),
+      h(CopyFieldInput, { label: 'URL', value: url }),
+      h(CopyFieldInput, { label: 'Markdown', value: `![](${url})` }),
+      h(CopyFieldInput, { label: 'BBCode', value: `[img]${url}[/img]` }),
     );
   }
 
@@ -168,7 +175,6 @@
 
   const $ = (id) => document.getElementById(id);
 
-  const $formUpload = $('image-upload');
   const $imageContainer = $('uploaded-images');
   /**
    * @type {HTMLInputElement}
@@ -222,6 +228,7 @@
       try {
         // DEBUG: set this value to true to disable upload
         if (window._no_upload) {
+          // noinspection ExceptionCaughtLocallyJS
           throw new Error('upload disabled');
         }
 
@@ -301,14 +308,14 @@
   const updateDndNotes = () => {
     document.body.classList.toggle('hide-dnd-notes', dndCounter === 0);
   };
-  document.body.addEventListener('dragenter', (e) => {
+  document.body.addEventListener('dragenter', (_e) => {
     dndCounter++;
     updateDndNotes();
   });
   document.body.addEventListener('dragover', (e) => {
     e.preventDefault();
   });
-  document.body.addEventListener('dragleave', (e) => {
+  document.body.addEventListener('dragleave', (_e) => {
     dndCounter--;
     updateDndNotes();
   });
