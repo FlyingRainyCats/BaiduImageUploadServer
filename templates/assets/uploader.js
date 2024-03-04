@@ -244,4 +244,8 @@
             e.preventDefault();
         }
     });
+
+    document.body.addEventListener('paste', (e) => {
+        uploadAllImages(filterImages(e.clipboardData.files)).catch(console.error);
+    });
 })();
