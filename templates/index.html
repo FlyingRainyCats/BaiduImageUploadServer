@@ -28,13 +28,16 @@
       </noscript>
     </div>
 
-    <fieldset>
-      <legend>认证设定</legend>
-      <label for="bduss">BDUSS Cookie 内容</label>
-      <div>
-        <textarea name="bduss" id="bduss" placeholder="留空则使用服务器预配置的 BDUSS">{{.BDUSS}}</textarea>
+    <details class="card">
+      <summary class="card--title">认证设定</summary>
+
+      <div class="card--body">
+        <label for="bduss">自定义 <code>BDUSS</code></label>
+        <div>
+          <textarea name="bduss" id="bduss" placeholder="留空则使用服务器预配置的 BDUSS">{{.BDUSS}}</textarea>
+        </div>
       </div>
-    </fieldset>
+    </details>
 
     <fieldset>
       <legend>上传队列</legend>

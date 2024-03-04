@@ -16,6 +16,32 @@
   }
 }
 
+:root {
+  --font-monospace: 'Sarasa Fixed SC', 'Ubuntu Mono', Consolas, monospace;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+pre,
+code,
+kbd,
+input,
+textarea {
+  font-family: var(--font-monospace);
+}
+
+#bduss {
+  width: 100%;
+  height: 5em;
+  padding: 0.25em;
+  border-radius: 5px;
+  margin-top: 0.25em;
+}
+
 .uploaded-images {
   display: flex;
   list-style: none;
@@ -74,12 +100,6 @@ fieldset {
   margin-top: 1em;
 }
 
-html,
-body {
-  margin: 0;
-  height: 100%;
-}
-
 .hide-dnd-notes #dnd-upload-note {
   display: none;
 }
@@ -127,4 +147,22 @@ body {
 
 .uploaded-images--field {
   flex: 1;
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  margin-top: 1em;
+}
+
+.card--title {
+  line-height: 1;
+  padding: 1rem;
+  margin: -1rem;
+  cursor: pointer;
+}
+
+.card--body {
+  margin-top: 1em;
 }
