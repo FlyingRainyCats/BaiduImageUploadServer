@@ -11,9 +11,16 @@
 <body class="hide-dnd-notes">
 
 <main>
+  <header>
+    <h1>简易百度图床工具</h1>
+  </header>
+
   <form id="image-upload" method="post" enctype="multipart/form-data" action="/upload">
     <div>
-      <label for="image-input">选择文件进行上传</label>
+      <label for="image-input">
+        <span class="pointer-only">选择或拖拽文件进行上传</span>
+        <span class="touch-only">选择文件进行上传</span>
+      </label>
       <div><input type="file" id="image-input" name="image" accept="image/*" required multiple></div>
 
       <noscript>

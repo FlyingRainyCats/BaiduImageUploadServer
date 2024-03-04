@@ -1,3 +1,21 @@
+.touch-only {
+  display: none;
+}
+
+.pointer-only {
+  display: block;
+}
+
+@media (pointer: coarse) {
+  .touch-only {
+    display: block;
+  }
+
+  .pointer-only {
+    display: none;
+  }
+}
+
 .uploaded-images {
   display: flex;
   list-style: none;
