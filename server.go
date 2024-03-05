@@ -4,6 +4,7 @@ import (
 	"BaiduImageUploadServer/logic"
 	"BaiduImageUploadServer/templates"
 	"BaiduImageUploadServer/utils"
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -14,10 +15,10 @@ func main() {
 	e := echo.New()
 	e.Renderer = templates.CreateTemplateRenderer()
 
-	var config utils.Config
+	config := utils.NewConfig()
 	_, err := toml.DecodeFile("config.toml", &config)
 	if err != nil {
-		panic(err)
+		fmt.Printf("warn: failed to parse config.toml with error (ignored): %s", err)
 	}
 
 	e.StaticFS("/assets", echo.MustSubFS(templates.AssetsFS, "assets"))
@@ -56,5 +57,5 @@ func main() {
 		})
 	})
 	e.POST("/upload", logic.BaiduUploadHandler)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(config.App.ListenAddress))
 }
