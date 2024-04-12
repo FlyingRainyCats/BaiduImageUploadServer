@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"strings"
 )
 
 const BaiduImageUploadEndpointUrl = "https://sp0.baidu.com/6_R1fD_bAAd3otqbppnN2DJv/Pic/upload?pid=super&app=skin&l&logid=3915152959"
@@ -35,7 +36,7 @@ type BaiduUploadResp struct {
 	Data   *BaiduUploadRespData `json:"data"`
 }
 
-func UploadToBaidu(bduss string, image io.Reader) (string, error) {
+func UploadToBaidu(image io.Reader, bduss string, headers map[string]string) (string, error) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
 	defer func(writer *multipart.Writer) {
@@ -67,6 +68,14 @@ func UploadToBaidu(bduss string, image io.Reader) (string, error) {
 	req.Header.Set("User-Agent", DefaultUserAgent)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("Cookie", fmt.Sprintf("BDUSS=%s", bduss))
+	for key, value := range headers {
+		headerName := strings.ToLower(key)
+		if headerName == "cookie" {
+			req.Header.Add(key, value)
+		} else {
+			req.Header.Set(key, value)
+		}
+	}
 
 	client := &http.Client{
 		// Don't follow redirect - is usually a rejected request, no need to follow :/

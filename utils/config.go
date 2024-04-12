@@ -4,7 +4,8 @@ import "github.com/mcuadros/go-defaults"
 
 // Config struct to match utils.toml file structure
 type Config struct {
-	App AppConfig `toml:"app"` // has to match with your toml structure.
+	App     AppConfig         `toml:"app"` // has to match with your toml structure.
+	Headers map[string]string `toml:"headers" default:""`
 }
 
 type AppConfig struct {
@@ -15,5 +16,8 @@ type AppConfig struct {
 func NewConfig() *Config {
 	config := new(Config)
 	defaults.SetDefaults(config)
+	if config.Headers == nil {
+		config.Headers = make(map[string]string)
+	}
 	return config
 }

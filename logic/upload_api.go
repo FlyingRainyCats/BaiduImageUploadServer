@@ -89,7 +89,7 @@ func BaiduUploadHandler(c echo.Context) error {
 			return err
 		}
 
-		imageUrl, err := service.UploadToBaidu(bduss, bytes.NewReader(imageBytes))
+		imageUrl, err := service.UploadToBaidu(bytes.NewReader(imageBytes), bduss, config.Headers)
 		if err != nil {
 			return err
 		}
