@@ -31,7 +31,7 @@ func main() {
 	}))
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			c.Set("config", &config)
+			c.Set("config", config)
 			return next(c)
 		}
 	})
